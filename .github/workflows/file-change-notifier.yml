@@ -1,0 +1,37 @@
+name: File Change Notifier
+
+on:
+  push:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  count-and-send:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.merged == true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Count changed files
+        id: changes
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            git fetch origin ${{ github.event.before }}
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          elif [[ "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            CHANGED_FILES=$(git diff --name-only origin/main HEAD)
+          fi
+
+          COUNT=$(echo "$CHANGED_FILES" | wc -l)
+          echo "changed_count=$COUNT" >> $GITHUB_OUTPUT
+
+      - name: Send to webhook
+        env:
+          API_URL: https://5136-49-43-168-3.ngrok-free.app/webhook  # Replace with your ngrok URL
+        run: |
+          curl -X POST "$API_URL" \
+          -H "Content-Type: application/json" \
+          -d "{\"repo\": \"${{ github.repository }}\", \"commit\": \"${{ github.sha }}\", \"changed_files_count\": \"${{ steps.changes.outputs.changed_count }}\"}"
