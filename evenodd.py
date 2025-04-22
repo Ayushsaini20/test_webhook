@@ -16,3 +16,5 @@ try:
     print(check_even_odd(user_num))
 except ValueError:
     print("Please enter a valid integer!")
+    
+# check for outputs
