@@ -30,7 +30,7 @@ jobs:
 
       - name: Send to webhook
         env:
-          API_URL: https://5136-49-43-168-3.ngrok-free.app/webhook  # Replace with your ngrok URL
+          API_URL: https://e9c7-49-43-168-3.ngrok-free.app/webhook  # Replace with your ngrok URL
         run: |
           curl -X POST "$API_URL" \
           -H "Content-Type: application/json" \
